@@ -1,0 +1,5 @@
+/.venv
+/out
+/.idea
+.DS_Store
+*.png
