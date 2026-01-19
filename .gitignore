@@ -8,3 +8,5 @@
 *.fls
 *.log
 *.synctex.gz
+*results.json
+*report.txt
