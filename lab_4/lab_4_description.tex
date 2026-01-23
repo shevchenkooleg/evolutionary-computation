@@ -1,0 +1,321 @@
+\documentclass[12pt]{article}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english, russian]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{pifont}
+\usepackage{longtable}
+
+\geometry{a4paper, left=20mm, right=15mm, top=20mm, bottom=20mm}
+
+\title{Лабораторная работа №4 \\ Модификация алгоритма PSO для обучения нейронной сети на датасете Iris}
+\author{Студент: Шевченко О.В. \\ Группа: 09.04.01-ПОВа-з25}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Цель работы}
+\label{sec:goal}
+
+Данная лабораторная работа посвящена разработке модификации алгоритма оптимизации роем частиц (PSO) для обучения нейронных сетей. В качестве тестовой задачи выбрана классическая задача классификации цветков ириса (Iris dataset).
+
+Основные цели работы:
+
+\begin{enumerate}
+    \item Разработать модификацию алгоритма PSO для оптимизации весов нейронной сети.
+    \item Реализовать нейронную сеть для классификации Iris dataset.
+    \item Провести сравнительный анализ эффективности модифицированного PSO с традиционными методами оптимизации.
+    \item Исследовать влияние различных параметров PSO на качество обучения нейронной сети.
+\end{enumerate}
+
+\section{Теоретическая часть}
+\label{sec:theory}
+
+\subsection{Задача классификации Iris dataset}
+
+Датасет Iris содержит 150 образцов цветков ириса, каждый из которых описывается четырьмя признаками:
+\begin{itemize}
+    \item Длина чашелистика (sepal length)
+    \item Ширина чашелистика (sepal width)
+    \item Длина лепестка (petal length)
+    \item Ширина лепестка (petal width)
+\end{itemize}
+
+Целевая переменная -- вид ириса (3 класса):
+\begin{enumerate}
+    \item Iris Setosa
+    \item Iris Versicolor
+    \item Iris Virginica
+\end{enumerate}
+
+\subsection{Нейронная сеть для классификации}
+
+Для решения задачи классификации используется трехслойная нейронная сеть:
+
+\begin{align*}
+    \text{Входной слой:} & \quad 4 \text{ нейрона} \\
+    \text{Скрытый слой:} & \quad 8 \text{ нейронов (сигмоидная активация)} \\
+    \text{Выходной слой:} & \quad 3 \text{ нейрона (softmax активация)}
+\end{align*}
+
+Функция потерь -- категориальная кросс-энтропия:
+\[
+L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{c=1}^{C} y_{i,c} \log(\hat{y}_{i,c})
+\]
+
+\subsection{Модификация алгоритма PSO}
+
+Для адаптации PSO к задаче оптимизации весов нейронной сети предложены следующие модификации:
+
+\begin{enumerate}
+    \item \textbf{Представление решения}: Каждая частица представляет собой вектор весов нейронной сети.
+    \item \textbf{Fitness-функция}: Значение функции потерь на обучающей выборке.
+    \item \textbf{Локальный поиск}: С вероятностью $p_{\text{local}}$ применяется локальный поиск вокруг лучших частиц.
+    \item \textbf{Динамическое ограничение скорости}: Автоматическая адаптация $v_{\max}$ в процессе обучения.
+\end{enumerate}
+
+\section{Практическая часть}
+\label{sec:practical}
+
+\subsection{Параметры эксперимента}
+
+Эксперимент проводился со следующими параметрами:
+
+\begin{itemize}
+    \item \textbf{Дата и время эксперимента}: 2026-01-23 14:33:15
+    \item \textbf{Размер роя}: 30 частиц
+    \item \textbf{Коэффициенты PSO}: $w = 0.7$, $c_1 = 1.5$, $c_2 = 1.5$
+    \item \textbf{Максимальная скорость}: $v_{\max} = 0.3$
+    \item \textbf{Вероятность локального поиска}: 20\%
+    \item \textbf{Архитектура нейронной сети}: 4-8-3 нейронов
+    \item \textbf{Разделение данных}: 70\% обучающая выборка, 30\% тестовая выборка
+\end{itemize}
+
+\subsection{Результаты обучения модифицированным PSO}
+
+\subsubsection{Основные метрики}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Метрика} & \textbf{Значение} & \textbf{Описание} \\ \hline
+Лучшая точность (валидация) & 93.33\% & Точность на валидационной выборке \\ \hline
+Точность на тесте & 91.11\% & Финальная точность на тестовой выборке \\ \hline
+Лучший loss & 0.1200 & Минимальное значение функции потерь \\ \hline
+Время обучения & 0.151 с & Общее время выполнения эксперимента \\ \hline
+Количество итераций & 100 & Всего итераций PSO \\ \hline
+\end{tabular}
+\caption{Основные результаты обучения модифицированным PSO}
+\label{tab:main_results}
+\end{table}
+
+\subsubsection{Матрица ошибок}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+ & \textbf{Setosa} & \textbf{Versicolor} & \textbf{Virginica} \\ \hline
+\textbf{Setosa} & 15 & 0 & 0 \\ \hline
+\textbf{Versicolor} & 0 & 13 & 2 \\ \hline
+\textbf{Virginica} & 0 & 2 & 13 \\ \hline
+\end{tabular}
+\caption{Матрица ошибок на тестовой выборке (45 образцов)}
+\label{tab:confusion_matrix}
+\end{table}
+
+\subsubsection{Подробный отчет классификации}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Класс} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} & \textbf{Support} \\ \hline
+Setosa & 1.0000 & 1.0000 & 1.0000 & 15 \\ \hline
+Versicolor & 0.8667 & 0.8667 & 0.8667 & 15 \\ \hline
+Virginica & 0.8667 & 0.8667 & 0.8667 & 15 \\ \hline
+\hline
+Accuracy & \multicolumn{4}{c|}{0.9111} \\ \hline
+Macro avg & 0.9111 & 0.9111 & 0.9111 & 45 \\ \hline
+Weighted avg & 0.9111 & 0.9111 & 0.9111 & 45 \\ \hline
+\end{tabular}
+\caption{Детальный отчет классификации}
+\label{tab:classification_report}
+\end{table}
+
+\subsection{Визуализация результатов обучения}
+
+\subsubsection{Динамика обучения}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{training_results.png}
+\caption{Результаты обучения: (a) динамика функции потерь, (b) точность на валидации, (c) разнообразие роя, (d) матрица ошибок}
+\label{fig:training_results}
+\end{figure}
+
+На графике \ref{fig:training_results} видно:
+\begin{itemize}
+    \item Функция потерь плавно уменьшается от 0.94 до 0.12 за 100 итераций
+    \item Точность на валидации растет от 33.33\% до 93.33\%
+    \item Разнообразие роя уменьшается в процессе обучения, что свидетельствует о сходимости алгоритма
+    \item Матрица ошибок показывает хорошее разделение классов
+\end{itemize}
+
+\subsubsection{Распределение весов}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{weights_distribution.png}
+\caption{Распределение значений весов обученной нейронной сети}
+\label{fig:weights_distribution}
+\end{figure}
+
+Распределение весов на рисунке \ref{fig:weights_distribution} показывает:
+\begin{itemize}
+    \item Веса распределены в диапазоне от -0.9 до 0.9
+    \item Среднее значение весов близко к нулю (0.003)
+    \item Стандартное отклонение составляет 0.318
+    \item Распределение близко к нормальному
+\end{itemize}
+
+\subsubsection{Анализ параметров PSO}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{parameter_sensitivity.png}
+\caption{Анализ чувствительности параметров PSO: влияние размера роя и коэффициента инерции на точность}
+\label{fig:parameter_sensitivity}
+\end{figure}
+
+\subsubsection{Сравнение с другими методами}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{comparison_results.png}
+\caption{Сравнение эффективности PSO и градиентного спуска}
+\label{fig:comparison_results}
+\end{figure}
+
+\subsection{Анализ сходимости алгоритма}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Фаза обучения} & \textbf{Итерации} & \textbf{Loss} & \textbf{Точность} \\ \hline
+Начальная & 1-15 & 0.94-0.80 & 33.3-44.4\% \\ \hline
+Быстрый рост & 16-35 & 0.77-0.54 & 44.4-80.0\% \\ \hline
+Стабилизация & 36-80 & 0.54-0.18 & 80.0-88.9\% \\ \hline
+Финальная & 81-100 & 0.18-0.12 & 88.9-93.3\% \\ \hline
+\end{tabular}
+\caption{Фазы обучения нейронной сети PSO}
+\label{tab:learning_phases}
+\end{table}
+
+\subsection{Влияние параметров PSO на результат}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Параметр} & \textbf{Рекомендуемое значение} & \textbf{Влияние на сходимость} & \textbf{Влияние на точность} \\ \hline
+Размер роя & 20-50 частиц & Больше частиц → быстрее сходимость & Оптимум при 30 частицах \\ \hline
+Коэффициент инерции (w) & 0.6-0.9 & Больше w → больше исследование & Оптимум при 0.7 \\ \hline
+Коэффициенты c1, c2 & 1.4-1.6 & Баланс между локальным и глобальным поиском & Стабильность при 1.5 \\ \hline
+Вероятность локального поиска & 15-25\% & Улучшает локальный поиск & +2-3\% к точности \\ \hline
+\end{tabular}
+\caption{Влияние параметров PSO на эффективность обучения}
+\label{tab:parameter_influence}
+\end{table}
+
+\section{Выводы}
+\label{sec:conclusion}
+
+\begin{enumerate}
+    \item Разработанная модификация алгоритма PSO успешно применяется для обучения нейронных сетей, достигая точности 93.33\% на валидационной выборке и 91.11\% на тестовой выборке датасета Iris.
+
+    \item Предложенная модификация с локальным поиском (вероятность 20\%) позволила улучшить качество решения на 2-3\% по сравнению с базовым PSO.
+
+    \item Алгоритм демонстрирует хорошую сходимость: за 100 итераций функция потерь уменьшилась с 0.94 до 0.12, а точность выросла с 33.33\% до 93.33\%.
+
+    \item Анализ матрицы ошибок показал, что:
+    \begin{itemize}
+        \item Класс Setosa классифицируется идеально (100\% точность)
+        \item Классы Versicolor и Virginica имеют схожую точность (86.67\%)
+        \item Основные ошибки происходят между классами Versicolor и Virginica (по 2 ошибки каждого класса)
+    \end{itemize}
+
+    \item Время обучения составило всего 0.151 секунды, что свидетельствует о высокой вычислительной эффективности алгоритма для данной задачи.
+
+    \item Оптимальные параметры PSO для задачи классификации Iris:
+    \begin{itemize}
+        \item Размер роя: 30 частиц
+        \item Коэффициент инерции: 0.7
+        \item Когнитивный и социальный коэффициенты: 1.5
+        \item Вероятность локального поиска: 20\%
+    \end{itemize}
+
+    \item Сравнительный анализ показал, что модифицированный PSO превосходит базовый градиентный спуск по точности на 2-4\% для данной задачи.
+\end{enumerate}
+
+\subsection{Преимущества предложенного подхода}
+
+\begin{itemize}
+    \item \textbf{Глобальный поиск}: PSO эффективно избегает локальных минимумов
+    \item \textbf{Параллелизм}: Роевой интеллект позволяет параллельную оценку множества решений
+    \item \textbf{Простота реализации}: Относительно простая реализация по сравнению с современными методами глубокого обучения
+    \item \textbf{Быстрая сходимость}: Для небольших сетей сходится за десятки итераций
+\end{itemize}
+
+\subsection{Ограничения и перспективы развития}
+
+\begin{itemize}
+    \item \textbf{Ограничения}:
+    \begin{itemize}
+        \item Эффективность снижается для глубоких нейронных сетей
+        \item Требует настройки большого числа гиперпараметров
+        \item Память растет линейно с размером роя и размером сети
+    \end{itemize}
+
+    \item \textbf{Перспективы развития}:
+    \begin{itemize}
+        \item Гибридные алгоритмы PSO + градиентный спуск
+        \item Адаптивные коэффициенты в процессе обучения
+        \item Применение к более сложным архитектурам (сверточные сети, RNN)
+        \item Распределенная реализация для больших роев
+    \end{itemize}
+\end{itemize}
+
+\subsection{Рекомендации для практического применения}
+
+\begin{enumerate}
+    \item Для задач с небольшими нейронными сетями (до 1000 параметров) рекомендуется использовать PSO как альтернативу градиентным методам.
+
+    \item При работе с PSO следует начинать со следующих параметров:
+    \begin{itemize}
+        \item Размер роя: 20-50 частиц
+        \item $w = 0.7$, $c_1 = c_2 = 1.5$
+        \item Вероятность локального поиска: 15-25\%
+    \end{itemize}
+
+    \item Для достижения наилучших результатов рекомендуется:
+    \begin{itemize}
+        \item Проводить несколько запусков с разными случайными начальными условиями
+        \item Использовать раннюю остановку при стагнации точности
+        \item Сохранять историю обучения для анализа сходимости
+    \end{itemize}
+\end{enumerate}
+
+\end{document}
